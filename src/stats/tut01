@@ -11,6 +11,7 @@ sys.path.append(project_root)
 
 from config.local_config import LOCAL_DATA_DIRECTORY
 
+date_format_mdY = '%m/%d/%Y'
 
 def setup():
     os.chdir(LOCAL_DATA_DIRECTORY)
@@ -18,22 +19,9 @@ def setup():
     os.chdir(directory_name)
 
 
-def imports_exports(country: str | None = None):
+def df_imports_exports_nl():
+    file_name = r"ImportsExports_NL_2018_2023.xlsx"
     
-    country = "NL" if country is None else country
-    
-    file_name_dict = {
-        "NL": r"ImportsExports_NL_2018_2023.xlsx",
-        "BE": r"ImportsExports_BE_2013_2023.xlsx",
-        "GE": r"ImportsExports_GE_2013_2023.xlsx"
-    }
-    
-    try:
-        file_name = file_name_dict[country]
-    except KeyError:
-        file_name = file_name_dict["NL"]
-    
-    date_format = '%m/%d/%Y'
     df = pd.read_excel(file_name, 
                         parse_dates=True, 
                         skiprows=4, 
@@ -41,20 +29,21 @@ def imports_exports(country: str | None = None):
                         nrows=33,
                         usecols=list(range(103)),
                         index_col=0,
-                        date_format=date_format)
+                        date_format=date_format_mdY)
 
     df_inverted_columns = df.iloc[:, ::-1]
     df_t = df_inverted_columns.T
     
-    n_categories = 10
-    big_cols = [0, 11, 22]
-    
-    df_big = df_t.iloc[:, big_cols]
+    df_big = df_t.iloc[:, [0, 11, 22]]
     df_imports = df_t.iloc[:, 1:11]
     df_exports = df_t.iloc[:, 12:22]
     df_balance = df_t.iloc[:, 23:33]
     
-    dfs = [df_big, df_imports, df_exports, df_balance]
+    return df_big, df_imports, df_exports, df_balance
+
+
+def show_imports_exports_nl():
+    dfs = df_imports_exports_nl()
     
     fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
     (ax1, ax2), (ax3, ax4) = axs
@@ -71,11 +60,106 @@ def imports_exports(country: str | None = None):
     plt.show() 
 
 
+def df_imports_exports_be():
+    file_name = r"ImportsExports_BE_2013_2023.xlsx"
+    
+    df = pd.read_excel(file_name, 
+                        parse_dates=True, 
+                        skiprows=[0, 1, 2, 3, 27, 50], 
+                        dtype={'a': str}, 
+                        nrows=67,
+                        usecols=list(range(117)),
+                        index_col=0,
+                        date_format=date_format_mdY)
+
+    df_inverted_columns = df.iloc[:, ::-1]
+    df_t = df_inverted_columns.T
+    
+    df_big = df_t.iloc[:, [0, 22, 44]]
+    df_imports = df_t.iloc[:-1, 1:22]
+    df_exports = df_t.iloc[:-1, 23:44]
+    df_balance = df_t.iloc[:-1, 45:66]
+
+    return df_big, df_imports, df_exports, df_balance
+
+
+def show_imports_exports_be():
+    dfs = df_imports_exports_be()
+    
+    fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
+    (ax1, ax2), (ax3, ax4) = axs
+    axs_flat = [ax1, ax2, ax3, ax4]
+    
+    suptitle = "Import & Exports in Belgium 2013-2023"
+    fig.suptitle(suptitle)
+    ax_titles = ["Totals", "Imports", "Exports", "Balances"]
+    
+    for df_i, ax, title in zip(dfs, axs_flat, ax_titles):
+        df_i.plot(ax=ax, kind="line", linewidth=2)
+        ax.set_title(title)
+
+    plt.show() 
+    
+    
+def df_imports_exports_ge():
+    file_name = r"ImportsExports_GE_2013_2023.xlsx"
+    
+    df = pd.read_excel(file_name, 
+                        parse_dates=True, 
+                        skiprows=[0, 1, 2, 3, 31], 
+                        dtype={'a': str}, 
+                        nrows=53,
+                        usecols=list(range(121)),
+                        index_col=0,
+                        date_format=date_format_mdY)
+
+    df_inverted_columns = df.iloc[:, ::-1]
+    df_t = df_inverted_columns.T
+    
+    big_cols = [0, 26]
+    
+    df_big = df_t.iloc[:, big_cols]
+    df_imports = df_t.iloc[:-1, 1:26]
+    df_exports = df_t.iloc[:-1, 27:52]
+    # df_balance = df_t.iloc[:-1, 45:66]
+    df_balance = df_imports - df_exports
+    
+    return df_big, df_imports, df_exports, df_balance
+    
+    
+def show_imports_exports_ge():
+    dfs = df_imports_exports_ge()
+    
+    fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
+    (ax1, ax2), (ax3, ax4) = axs
+    axs_flat = [ax1, ax2, ax3, ax4]
+    
+    suptitle = "Import & Exports in Germany 2013-2023"
+    fig.suptitle(suptitle)
+    ax_titles = ["Totals", "Imports", "Exports", "Balances"]
+    
+    for df_i, ax, title in zip(dfs, axs_flat, ax_titles):
+        df_i.plot(ax=ax, kind="line", linewidth=2)
+        ax.set_title(title)
+
+    plt.show() 
+
+
+def correlation_imports_exports_nl():
+    dfs = df_imports_exports_nl()
+    
+    corr = dfs[1].corr()
+    corr.plot()
+    plt.show()
+
 
 def main():
     print("Started")
     setup()
-    imports_exports()
+    # imports_exports_nl()
+    # imports_exports_be()
+    # show_imports_exports_ge()
+    correlation_imports_exports_nl()
 
 
 if __name__ == "__main__":
