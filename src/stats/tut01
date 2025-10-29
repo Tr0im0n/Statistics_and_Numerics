@@ -21,6 +21,38 @@ def setup() -> None:
     os.chdir(LOCAL_DATA_DIRECTORY)
     directory_name = r"FactSet"
     os.chdir(directory_name)
+    
+
+def line_plots_df(df: pd.DataFrame) -> None:
+    df.plot(kind="line", linewidth=2)
+    plt.show()
+
+
+def show_correlation_matrix(corr_matrix: pd.DataFrame) -> None:
+    fig, ax = plt.subplots(figsize=(8, 6)) # Start with a reasonable size, e.g., (10, 8)
+    sns.heatmap(
+        corr_matrix, 
+        annot=True,     # Annotate the cells with the correlation values
+        cmap='coolwarm',# Choose a divergent colormap (good for positive/negative values)
+        fmt=".2f",      # Format the annotations to two decimal places
+        linewidths=.5,  # Add lines between cells for clarity
+        cbar=True,
+        ax=ax
+    )
+    ax.set_aspect("equal")
+    ax.set_title('Correlation Matrix Heatmap (Square Cells)')
+    plt.show()
+    
+
+def show_plot_and_correlation_of_df(df: pd.DataFrame) -> None:
+    line_plots_df(df_price_history())
+    corr_matrix = df.corr()
+    show_correlation_matrix(corr_matrix)
+
+
+#####################################################################
+# Individual functions
+#####################################################################
 
 
 def df_imports_exports_nl() -> df4:
@@ -151,35 +183,97 @@ def show_imports_exports_ge() -> None:
 
 def correlation_imports_exports_nl() -> None:
     dfs = df_imports_exports_nl()
-    
     corr_matrix = dfs[1].corr()
-    
     show_correlation_matrix(corr_matrix)
 
+    
+def df_price_history() -> pd.DataFrame:
+    file_name = r"PriceHistory_SelectedMaterials.xlsx"
+    
+    df = pd.read_excel(file_name, 
+                        parse_dates=True, 
+                        skiprows=[0, 1], 
+                        dtype={'a': str}, 
+                        nrows=5037,
+                        usecols=list(range(8)),
+                        index_col=0,
+                        date_format=date_format_mdY)
+    
+    df_inverted = df.iloc[::-1]
+    df_inverted.index = df.index[::-1]
+    return df_inverted
 
-def show_correlation_matrix(corr_matrix: pd.DataFrame) -> None:
-    fig, ax = plt.subplots(figsize=(8, 6)) # Start with a reasonable size, e.g., (10, 8)
-    sns.heatmap(
-        corr_matrix, 
-        annot=True,     # Annotate the cells with the correlation values
-        cmap='coolwarm',# Choose a divergent colormap (good for positive/negative values)
-        fmt=".2f",      # Format the annotations to two decimal places
-        linewidths=.5,  # Add lines between cells for clarity
-        cbar=True,
-        ax=ax
+
+def df_retail_sales_nl() -> pd.DataFrame:
+    file_name = r"RetailSales_NL_2013_2023.xlsx"
+    
+    df = pd.read_excel(
+        file_name, 
+        parse_dates=True, 
+        skiprows=4, 
+        dtype={'a': str}, 
+        nrows=18,
+        # usecols=list(range(8)),
+        index_col=0,
+        date_format=date_format_mdY,
+        na_values=['-', "'-"]
     )
-    ax.set_aspect("equal")
-    ax.set_title('Correlation Matrix Heatmap (Square Cells)')
-    plt.show()
+    
+    df_inverted = df.iloc[:, ::-1]
+    
+    return df_inverted.T
+
+
+def df_retail_sales_ge() -> pd.DataFrame:
+    file_name = r"RetailSales_GE_2013_2023.xlsx"
+    df = pd.read_excel(
+        file_name, 
+        parse_dates=True, 
+        skiprows=4, 
+        dtype={'a': str}, 
+        nrows=38,
+        # usecols=list(range(8)),
+        index_col=0,
+        date_format=date_format_mdY
+    )
+    
+    df_inverted = df.iloc[:, ::-1]
+    
+    return df_inverted.T
+    
+
+def df_retail_sales_be() -> pd.DataFrame:
+    file_name = r"RetailSales_BE_2013_2023.xlsx"
+    df = pd.read_excel(
+        file_name, 
+        parse_dates=True, 
+        skiprows=4, 
+        dtype={'a': str}, 
+        nrows=15,
+        # usecols=list(range(8)),
+        index_col=0,
+        date_format=date_format_mdY,
+        na_values=['-', "'-"]
+    )
+    
+    df_inverted = df.iloc[:, ::-1]
+    
+    return df_inverted.T
+
 
 
 def main() -> None:
     print("Started")
     setup()
-    # imports_exports_nl()
-    # imports_exports_be()
+    # show_imports_exports_nl()     # Import more chemicals and related products
+    # show_imports_exports_be()
     # show_imports_exports_ge()
-    correlation_imports_exports_nl()
+    # correlation_imports_exports_nl()
+    # show_plot_and_correlation_of_df(df_price_history())
+    # show_plot_and_correlation_of_df(df_retail_sales_nl())
+    # show_plot_and_correlation_of_df(df_retail_sales_ge())
+    show_plot_and_correlation_of_df(df_retail_sales_be())
+    print("Finished")
 
 
 if __name__ == "__main__":
