@@ -4,6 +4,10 @@ import sys
 import numpy as numpy
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
+from typing import Tuple
+
+df4 = Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.join(current_dir, '..', '..')
@@ -13,13 +17,13 @@ from config.local_config import LOCAL_DATA_DIRECTORY
 
 date_format_mdY = '%m/%d/%Y'
 
-def setup():
+def setup() -> None:
     os.chdir(LOCAL_DATA_DIRECTORY)
     directory_name = r"FactSet"
     os.chdir(directory_name)
 
 
-def df_imports_exports_nl():
+def df_imports_exports_nl() -> df4:
     file_name = r"ImportsExports_NL_2018_2023.xlsx"
     
     df = pd.read_excel(file_name, 
@@ -42,7 +46,7 @@ def df_imports_exports_nl():
     return df_big, df_imports, df_exports, df_balance
 
 
-def show_imports_exports_nl():
+def show_imports_exports_nl() -> None:
     dfs = df_imports_exports_nl()
     
     fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
@@ -60,7 +64,7 @@ def show_imports_exports_nl():
     plt.show() 
 
 
-def df_imports_exports_be():
+def df_imports_exports_be() -> df4:
     file_name = r"ImportsExports_BE_2013_2023.xlsx"
     
     df = pd.read_excel(file_name, 
@@ -83,7 +87,7 @@ def df_imports_exports_be():
     return df_big, df_imports, df_exports, df_balance
 
 
-def show_imports_exports_be():
+def show_imports_exports_be() -> None:
     dfs = df_imports_exports_be()
     
     fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
@@ -101,7 +105,7 @@ def show_imports_exports_be():
     plt.show() 
     
     
-def df_imports_exports_ge():
+def df_imports_exports_ge() -> df4:
     file_name = r"ImportsExports_GE_2013_2023.xlsx"
     
     df = pd.read_excel(file_name, 
@@ -127,7 +131,7 @@ def df_imports_exports_ge():
     return df_big, df_imports, df_exports, df_balance
     
     
-def show_imports_exports_ge():
+def show_imports_exports_ge() -> None:
     dfs = df_imports_exports_ge()
     
     fig, axs = plt.subplots(2, 2, sharex=True, figsize=(12, 7))
@@ -145,15 +149,31 @@ def show_imports_exports_ge():
     plt.show() 
 
 
-def correlation_imports_exports_nl():
+def correlation_imports_exports_nl() -> None:
     dfs = df_imports_exports_nl()
     
-    corr = dfs[1].corr()
-    corr.plot()
+    corr_matrix = dfs[1].corr()
+    
+    show_correlation_matrix(corr_matrix)
+
+
+def show_correlation_matrix(corr_matrix: pd.DataFrame) -> None:
+    fig, ax = plt.subplots(figsize=(8, 6)) # Start with a reasonable size, e.g., (10, 8)
+    sns.heatmap(
+        corr_matrix, 
+        annot=True,     # Annotate the cells with the correlation values
+        cmap='coolwarm',# Choose a divergent colormap (good for positive/negative values)
+        fmt=".2f",      # Format the annotations to two decimal places
+        linewidths=.5,  # Add lines between cells for clarity
+        cbar=True,
+        ax=ax
+    )
+    ax.set_aspect("equal")
+    ax.set_title('Correlation Matrix Heatmap (Square Cells)')
     plt.show()
 
 
-def main():
+def main() -> None:
     print("Started")
     setup()
     # imports_exports_nl()
