@@ -209,6 +209,22 @@ __marimo__/
 # res files, big files that i don't want in the repository
 res/
 
-# local_config.py
+# local config files
 local_config.py
+
+# MATLAB
+# -----------------------------
+
+# Autosave files
+*.asv
+# Temporary files
+*.bak
+*.log
+
+# Figure files (optional - if you generate many plots)
+# *.fig
+
+# System and Project Files
+/resources/project
+
 
