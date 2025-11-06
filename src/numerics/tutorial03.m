@@ -10,7 +10,7 @@ function main
     function ex5
         dt = 1;
         steps = 100;
-        t = 0:100:dt;
+        t = 0:100;
         Ta = 20;
         T0 = 90;
         k = 0.025;
