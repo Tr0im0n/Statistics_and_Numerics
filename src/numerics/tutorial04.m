@@ -6,8 +6,9 @@ format compact
 main()
 function main
 
-    ex6();
+    % ex6();
     function ex6
+        % assignment 2
         x1 = 1;
         % v1 = 0;
         t1 = 0;
@@ -48,8 +49,9 @@ function main
 
     end
 
-    ex7();
+    % ex7();
     function ex7
+        % my method
         x1 = 1;
         % v1 = 0;
         t1 = 0;
@@ -86,6 +88,30 @@ function main
         hold off;
         waitfor(h2);
 
+    end
+
+    ex8() 
+    function ex8
+        % runge kutta
+        t_interval = [0 100];
+        N_steps = 100;
+        u_initial = 90;
+
+        Ta = 20;
+        k = 0.025;
+
+        f = @(t, T) -k*(T-Ta);
+
+        [t, u] = rk4(t_interval, N_steps, u_initial, f);
+
+        u_exact = Ta + (u_initial-Ta) * exp(-k*t);
+
+        plot(t, u, 'o')
+        hold on
+        plot(t, u_exact, '-')
+        grid on;
+        hold off
+        
     end
 
 end
