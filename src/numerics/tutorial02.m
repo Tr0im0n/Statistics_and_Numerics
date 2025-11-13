@@ -93,7 +93,7 @@ function main()
         forcePairs = forces(2:end) + forces(1:end-1);
         heightPairs = heights(2:end) + heights(1:end-1);
         
-        array = 0.25 * forcePairs * heightPairs * dh;
+        array = 0.25 .* forcePairs .* heightPairs .* dh;
         total = sum(array);
         result = total / forceResultant;
     end
